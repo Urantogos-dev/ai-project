@@ -2,24 +2,33 @@
 import { useState } from "react";
 import { BsStars } from "react-icons/bs";
 import { HiOutlinePhotograph } from "react-icons/hi";
-import { RiArticleFill } from "react-icons/ri";
+
+// Илрүүлсэн орцын төрлийг тодорхойлно
+type DetectedIngredient = {
+  label: string;
+  score?: number;
+};
 
 export const Steptwo = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const [detectedObjects, setDetectedObjects] = useState<any[]>([]);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [detectedObjects, setDetectedObjects] = useState<DetectedIngredient[]>(
+    [],
+  );
+  const [analyzing, setAnalyzing] = useState<boolean>(false);
 
+  // Зураг сонгоход ажиллах функц
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage(file);
-      const url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(file); // Сонгосон зургийг дэлгэцэд харуулах URL үүсгэнэ
       setUploadedImageUrl(url);
       setDetectedObjects([]);
     }
   };
 
+  // Зургийг сервер рүү илгээн анализуулах
   const analyzeImage = async () => {
     if (!uploadedImage) return;
 
@@ -36,7 +45,7 @@ export const Steptwo = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data: { objects?: DetectedIngredient[] } = await response.json();
         setDetectedObjects(data.objects || []);
       } else {
         console.error("Failed to analyze image");
@@ -50,34 +59,38 @@ export const Steptwo = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-family flex ">
+      <h2 className="text-2xl font-family flex gap-2 items-center">
         <span>
           <BsStars />
         </span>
         Ingredient recognition
       </h2>
+
       <div className="space-y-4">
         <div>
           <label className="text-gray-400 block mb-2 text-sm font-medium">
-            Describe the food, and AI will detect the ingredients.
+            Upload a food photo, and AI will detect the ingredients.
           </label>
+          {/* Зураг оруулдаг input болгон засав */}
           <input
-            type="text"
-            placeholder="Орц тодорхойлох"
+            type="file"
+            accept="image/*"
             onChange={handleImageUpload}
-            className="w-full h-[124px] px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
+
         <div className="w-full flex justify-end">
           <button
             onClick={analyzeImage}
             disabled={analyzing || !uploadedImage}
-            className=" px-6 py-2  bg-gray-900 text-white rounded-lg  disabled:bg-gray-400 disabled:cursor-not-allowed transitionn"
+            className="px-6 py-2 bg-gray-900 text-white rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition"
           >
-            {analyzing ? "Analyzing..." : "Genrate"}
+            {analyzing ? "Analyzing..." : "Generate"}
           </button>
         </div>
       </div>
+
       <div>
         <h2 className="flex gap-2 items-center font-family/sans">
           <span>
@@ -85,29 +98,48 @@ export const Steptwo = () => {
           </span>
           Identified Ingredients
         </h2>
-        <p className="text-gray-400">
-          First, enter your text to recognize an ingredients.{" "}
-        </p>
+
+        {!uploadedImageUrl && (
+          <p className="text-gray-400 text-sm mt-1">
+            First, upload an image to recognize ingredients.
+          </p>
+        )}
+
+        {/* Зураг сонгосон үед зургийг харуулна */}
         {uploadedImageUrl && (
-          <div className="border rounded-lg p-4">
-            <RiArticleFill  className="w-full rounded-lg mb-4" />
-           
-            {detectedObjects.length > 0 && (
+          <div className="border rounded-lg p-4 mt-4">
+            <img
+              src={uploadedImageUrl}
+              alt="Uploaded Food"
+              className="w-full max-h-[300px] object-cover rounded-lg mb-4"
+            />
+
+            {/* AI-аас ирсэн орцуудын жагсаалтыг харуулна */}
+            {detectedObjects.length > 0 ? (
               <div className="mt-4 space-y-2">
-                <h3 className="font-semibold text-lg">Detected Objects:</h3>
+                <h3 className="font-semibold text-lg">Detected Ingredients:</h3>
                 <ul className="space-y-1">
                   {detectedObjects.map((obj, index) => (
-                    <li key={index} className="text-sm">
+                    <li
+                      key={index}
+                      className="text-sm flex justify-between border-b py-1"
+                    >
                       <span className="font-medium">{obj.label}</span>
-                      {obj.score && (
-                        <span className="text-gray-600 ml-2">
-                          ({(obj.score * 100).toFixed(1)}%)
+                      {obj.score !== undefined && (
+                        <span className="text-gray-500">
+                          {(obj.score * 100).toFixed(1)}%
                         </span>
                       )}
                     </li>
                   ))}
                 </ul>
               </div>
+            ) : (
+              !analyzing && (
+                <p className="text-sm text-gray-500">
+                  Click "Generate" to analyze the image.
+                </p>
+              )
             )}
           </div>
         )}

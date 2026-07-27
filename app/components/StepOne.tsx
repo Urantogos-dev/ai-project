@@ -3,10 +3,14 @@ import { useState } from "react";
 import { BsStars } from "react-icons/bs";
 import { HiOutlinePhotograph } from "react-icons/hi";
 
+type DetectedObject = {
+  label: string;
+  score?: number;
+};
 export const StepOne = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const [detectedObjects, setDetectedObjects] = useState<any[]>([]);
+  const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
 
 

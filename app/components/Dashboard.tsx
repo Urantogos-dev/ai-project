@@ -3,14 +3,14 @@ import { BsStars } from "react-icons/bs";
 import { HiOutlinePhotograph } from "react-icons/hi";
 
 type Props = {
-  value: any;
+  value: string;
   title: string;
-  onChange: any;
-  onKeyDown: any;
-  onClick: any;
-  disabled: any;
-  Url: any;
-  loading: any;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+  Url?: string;
+  loading?: boolean;
 };
 export const Dashboard = ({
   value,
