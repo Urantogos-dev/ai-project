@@ -137,7 +137,7 @@ export const Steptwo = () => {
             ) : (
               !analyzing && (
                 <p className="text-sm text-gray-500">
-                  Click "Generate" to analyze the image.
+                  Click &quot;Generate&quot; to analyze the image.
                 </p>
               )
             )}
